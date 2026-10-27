@@ -28,3 +28,8 @@ sql:
         overrides:
           - db_type: timestamptz
             go_type: time.Time
+
+          - db_type: uuid
+            go_type:
+              import: "github.com/google/uuid"
+              type: UUID

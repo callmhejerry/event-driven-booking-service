@@ -48,7 +48,7 @@ func (s *BookingService) CreateBooking(
 		StartTime: startTime,
 		EndTime:   endTime,
 		UserEmail: request.UserEmail,
-		Status:    string(BookingStatusCancelled),
+		Status:    string(BookingStatusConfirmed),
 	})
 
 	if err != nil {

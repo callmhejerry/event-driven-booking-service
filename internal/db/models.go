@@ -7,11 +7,12 @@ package db
 import (
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Booking struct {
-	ID        pgtype.UUID
+	ID        uuid.UUID
 	RoomID    string
 	UserEmail string
 	StartTime time.Time
@@ -21,9 +22,9 @@ type Booking struct {
 }
 
 type Outbox struct {
-	ID            pgtype.UUID
+	ID            uuid.UUID
 	AggregateType string
-	AggregateID   pgtype.UUID
+	AggregateID   uuid.UUID
 	EventType     string
 	Payload       []byte
 	CreatedAt     time.Time
