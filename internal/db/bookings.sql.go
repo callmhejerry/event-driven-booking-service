@@ -7,7 +7,49 @@ package db
 
 import (
 	"context"
+	"time"
 )
+
+const createBooking = `-- name: CreateBooking :one
+INSERT INTO bookings (
+    room_id , 
+    start_time, 
+    end_time,
+    user_email,
+    status
+)
+VALUES ($1, $2, $3, $4, $5)
+RETURNING id, room_id, user_email, start_time, end_time, status, created_at
+`
+
+type CreateBookingParams struct {
+	RoomID    string
+	StartTime time.Time
+	EndTime   time.Time
+	UserEmail string
+	Status    string
+}
+
+func (q *Queries) CreateBooking(ctx context.Context, arg CreateBookingParams) (Booking, error) {
+	row := q.db.QueryRow(ctx, createBooking,
+		arg.RoomID,
+		arg.StartTime,
+		arg.EndTime,
+		arg.UserEmail,
+		arg.Status,
+	)
+	var i Booking
+	err := row.Scan(
+		&i.ID,
+		&i.RoomID,
+		&i.UserEmail,
+		&i.StartTime,
+		&i.EndTime,
+		&i.Status,
+		&i.CreatedAt,
+	)
+	return i, err
+}
 
 const getAllBookings = `-- name: GetAllBookings :many
 SELECT id, room_id, user_email, start_time, end_time, status, created_at FROM bookings

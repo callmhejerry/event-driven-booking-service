@@ -5,6 +5,8 @@
 package db
 
 import (
+	"time"
+
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -12,10 +14,10 @@ type Booking struct {
 	ID        pgtype.UUID
 	RoomID    string
 	UserEmail string
-	StartTime pgtype.Timestamptz
-	EndTime   pgtype.Timestamptz
+	StartTime time.Time
+	EndTime   time.Time
 	Status    string
-	CreatedAt pgtype.Timestamptz
+	CreatedAt time.Time
 }
 
 type Outbox struct {
@@ -24,6 +26,6 @@ type Outbox struct {
 	AggregateID   pgtype.UUID
 	EventType     string
 	Payload       []byte
-	CreatedAt     pgtype.Timestamptz
+	CreatedAt     time.Time
 	ProcessedAt   pgtype.Timestamptz
 }

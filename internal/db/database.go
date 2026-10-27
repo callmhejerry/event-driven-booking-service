@@ -10,8 +10,8 @@ import (
 )
 
 type Database struct {
-	queries *Queries
-	pool    *pgxpool.Pool
+	*Queries
+	pool *pgxpool.Pool
 }
 
 func NewDatabase(dbConfig config.DatabaseConfig) (*Database, error) {
@@ -32,7 +32,7 @@ func NewDatabase(dbConfig config.DatabaseConfig) (*Database, error) {
 	queries := New(pool)
 
 	database := &Database{
-		queries: queries,
+		Queries: queries,
 		pool:    pool,
 	}
 
