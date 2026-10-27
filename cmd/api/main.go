@@ -2,17 +2,16 @@ package main
 
 import (
 	"context"
-	"errors"
 	"log"
-	"net/http"
+	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
+	"github.com/callmhejerry/event-driven-booking-service/internal/application"
 	"github.com/callmhejerry/event-driven-booking-service/internal/config"
 	"github.com/callmhejerry/event-driven-booking-service/internal/db"
-	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
 
@@ -25,27 +24,18 @@ func main() {
 		log.Fatal("Failed to create database configuration")
 	}
 
-	_, err = db.NewDatabase(*dbConfig)
+	database, err := db.NewDatabase(*dbConfig)
 	if err != nil {
 		log.Fatalf("Failed to create database %v\n", err)
 	}
 
-	router := gin.Default()
+	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 
-	httpServer := http.Server{
-		Addr:              ":2000",
-		Handler:           router,
-		ReadTimeout:       time.Second * 15,
-		WriteTimeout:      time.Second * 15,
-		ReadHeaderTimeout: time.Second * 15,
-	}
+	application := application.NewApplication(dbConfig, logger, database)
 
-	if err := httpServer.ListenAndServe(); err != nil {
-		if errors.Is(err, http.ErrServerClosed) {
-			log.Fatal("Sever is shutting down")
-		} else {
-			log.Fatalf("Failed to start server: %s", err)
-		}
+	if err := application.Start(); err != nil {
+		logger.Error("Failed to start server", "error", err.Error())
+		os.Exit(1)
 	}
 
 	shutdownChan := make(chan os.Signal, 1)
@@ -56,7 +46,7 @@ func main() {
 	shutdownCtx, close := context.WithTimeout(context.Background(), time.Second*5)
 	defer close()
 
-	if err := httpServer.Shutdown(shutdownCtx); err != nil {
+	if err := application.Shutdown(shutdownCtx); err != nil {
 		log.Fatal("Failed to shutdown server")
 	}
 }
